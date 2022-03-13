@@ -1,6 +1,7 @@
 from flask import Flask, jsonify
 from flask_cors import CORS
 import numpy as np
+from algo import location_estimation
 
 app = Flask(__name__)
 CORS(app)
@@ -21,6 +22,23 @@ def hello_world():  # put application's code here
     for item in r:
         send.append(item)
     return jsonify(send)
+
+# @app.route('/hub_number/<string:city_name>')
+# def hub_number(city_name):
+#     pass
+
+
+@app.route('/hub_number/<string:city_name>/<string:location_num>')
+def hub_number(city_name, location_num):
+    if not location_num.isnumeric():
+        location_num = 0 # TODO
+    estimator = location_estimation.LocationEstimator()
+    locations = estimator.location_estimation(city_name, int(location_num)).tolist()
+    print(locations)
+    if len(locations) == 0:
+        return jsonify(None)
+    res = [item for item in locations]
+    return jsonify(res)
 
 
 if __name__ == '__main__':
